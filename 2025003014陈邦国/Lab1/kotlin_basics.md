@@ -60,7 +60,7 @@ I'm learning Kotlin!
 
 ```kotlin
 fun main(){
-    println(my name is 陈邦国)
+    println(my name is chenbangguo)
     println(my studentio is 2025003014)
     println(my major is 计算机科学与技术)
 }
