@@ -267,13 +267,13 @@ fun main() {
 
 ```kotlin
 fun main() {
-    val operandOne = 2 
-    val operandTwo = 4  
-    println("$operandOne + $operandTwo = ${operandOne + operandTwo}")
-    println("$operandOne - $operandTwo = ${operandOne - operandTwo}")
-    println("$operandOne * $operandTwo = ${operandOne * operandTwo}")
-    println("$operandOne / $operandTwo = ${operandOne / operandTwo}")
-    println("$operandOne % $operandTwo = ${operandOne % operandTwo}")
+    val unreadCount: Int = 5
+    val readCount: Int = 10
+    println("$unreadCount + $readCount = ${unreadCount + readCount}")
+	println("$unreadCount - $readCount = ${unreadCount - readCount}")
+    println("$unreadCount * $readCount = ${unreadCount * readCount}")
+    println("$unreadCount / $readCount = ${unreadCount / readCount}")
+    println("$unreadCount % $readCount = ${unreadCount % readCount}")
 }
 ```
 
