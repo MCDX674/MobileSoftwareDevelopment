@@ -14,10 +14,21 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
+/**
+ * ViewModel管理UI状态
+ * 三种状态：加载、成功、错误
+ * 处理加载、重试、详情逻辑
+ * 使用viewModelScope管理协程
+ */
+sealed interface BookshelfUiState {
+    object Loading : BookshelfUiState
+    data class Success(val books: List<Book>) : BookshelfUiState
+    data class Error(val message: String) : BookshelfUiState
+}
+
 class BookshelfViewModel(
     private val booksRepository: BooksRepository
 ) : ViewModel() {
-
     private val _uiState = MutableStateFlow<BookshelfUiState>(BookshelfUiState.Loading)
     val uiState: StateFlow<BookshelfUiState> = _uiState.asStateFlow()
 
@@ -32,12 +43,11 @@ class BookshelfViewModel(
         _uiState.value = BookshelfUiState.Loading
         viewModelScope.launch {
             try {
-                val books = booksRepository.getBooks()
-                _uiState.value = BookshelfUiState.Success(books)
+                val list = booksRepository.getBooks()
+                _uiState.value = BookshelfUiState.Success(list)
             } catch (e: Exception) {
-                // 网络失败自动切换到离线数据
-                val offlineBooks = OfflineBooksRepository().getBooks()
-                _uiState.value = BookshelfUiState.Success(offlineBooks)
+                val offline = OfflineBooksRepository().getBooks()
+                _uiState.value = BookshelfUiState.Success(offline)
             }
         }
     }
@@ -53,9 +63,9 @@ class BookshelfViewModel(
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
-                val application = (this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY]
+                val app = (this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY]
                         as BookshelfApplication)
-                BookshelfViewModel(application.container.booksRepository)
+                BookshelfViewModel(app.container.booksRepository)
             }
         }
     }

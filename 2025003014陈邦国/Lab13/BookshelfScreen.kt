@@ -19,7 +19,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -27,7 +27,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.myapplicationlab10.R
@@ -43,9 +42,7 @@ fun BookshelfScreen(
 
     Scaffold(
         topBar = {
-            CenterAlignedTopAppBar(
-                title = { Text("我的书架") }
-            )
+            CenterAlignedTopAppBar(title = { Text("我的书架") })
         }
     ) { innerPadding ->
         Box(
@@ -54,96 +51,59 @@ fun BookshelfScreen(
                 .padding(innerPadding)
         ) {
             when (uiState) {
-                is BookshelfUiState.Loading -> {
-                    LoadingScreen(modifier = Modifier.align(Alignment.Center))
-                }
-                is BookshelfUiState.Success -> {
-                    val books = (uiState as BookshelfUiState.Success).books
-                    BooksGrid(
-                        books = books,
-                        onBookClick = { viewModel.selectBook(it) },
-                        modifier = Modifier.fillMaxSize()
-                    )
-                }
-                is BookshelfUiState.Error -> {
-                    val message = (uiState as BookshelfUiState.Error).message
-                    ErrorScreen(
-                        message = message,
-                        onRetry = { viewModel.loadBooks() },
-                        modifier = Modifier.align(Alignment.Center)
-                    )
-                }
-            }
-
-            selectedBook?.let { book ->
-                BookDetailDialog(
-                    book = book,
-                    onDismiss = { viewModel.closeDetailDialog() }
+                is BookshelfUiState.Loading -> LoadingScreen()
+                is BookshelfUiState.Success -> BooksGrid(
+                    books = (uiState as BookshelfUiState.Success).books,
+                    onClick = viewModel::selectBook
                 )
+                is BookshelfUiState.Error -> ErrorScreen(
+                    message = (uiState as BookshelfUiState.Error).message,
+                    onRetry = viewModel::loadBooks
+                )
+            }
+            selectedBook?.let {
+                BookDetailDialog(book = it, onDismiss = viewModel::closeDetailDialog)
             }
         }
     }
 }
 
 @Composable
-fun LoadingScreen(modifier: Modifier = Modifier) {
-    CircularProgressIndicator(modifier = modifier)
+fun LoadingScreen() {
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        CircularProgressIndicator()
+    }
 }
 
 @Composable
-fun ErrorScreen(
-    message: String,
-    onRetry: () -> Unit,
-    modifier: Modifier = Modifier
-) {
+fun ErrorScreen(message: String, onRetry: () -> Unit) {
     Column(
-        modifier = modifier.padding(16.dp),
+        modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text(
-            text = message,
-            style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
-        TextButton(onClick = onRetry) {
-            Text("重试")
-        }
+        Text(message)
+        TextButton(onClick = onRetry) { Text("重试") }
     }
 }
 
 @Composable
-fun BooksGrid(
-    books: List<Book>,
-    onBookClick: (Book) -> Unit,
-    modifier: Modifier = Modifier
-) {
+fun BooksGrid(books: List<Book>, onClick: (Book) -> Unit) {
     LazyVerticalGrid(
-        columns = GridCells.Adaptive(minSize = 150.dp),
-        modifier = modifier.padding(8.dp),
+        columns = GridCells.Adaptive(150.dp),
+        modifier = Modifier.padding(8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        items(books, key = { it.id }) { book ->
-            BookCard(
-                book = book,
-                onClick = { onBookClick(book) }
-            )
+        items(books, key = { it.id }) {
+            BookCard(book = it, onClick = onClick)
         }
     }
 }
 
 @Composable
-fun BookCard(
-    book: Book,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Card(
-        modifier = modifier,
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-        onClick = onClick
-    ) {
+fun BookCard(book: Book, onClick: (Book) -> Unit) {
+    Card(onClick = { onClick(book) }, elevation = CardDefaults.cardElevation(4.dp)) {
         Column {
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
@@ -160,26 +120,20 @@ fun BookCard(
             )
             Text(
                 text = book.title,
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.padding(8.dp)
+                modifier = Modifier.padding(8.dp),
+                style = MaterialTheme.typography.titleMedium
             )
         }
     }
 }
 
 @Composable
-fun BookDetailDialog(
-    book: Book,
-    onDismiss: () -> Unit,
-    modifier: Modifier = Modifier
-) {
+fun BookDetailDialog(book: Book, onDismiss: () -> Unit) {
     androidx.compose.material3.AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(book.title) },
         text = {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 AsyncImage(
                     model = ImageRequest.Builder(LocalContext.current)
                         .data(book.coverUrl)
@@ -193,18 +147,9 @@ fun BookDetailDialog(
                         .fillMaxWidth()
                         .height(300.dp)
                 )
-                Text(
-                    text = "书籍ID: ${book.id}",
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.padding(top = 16.dp)
-                )
+                Text("ID: ${book.id}", modifier = Modifier.padding(top = 16.dp))
             }
         },
-        confirmButton = {
-            TextButton(onClick = onDismiss) {
-                Text("关闭")
-            }
-        },
-        modifier = modifier
+        confirmButton = { TextButton(onClick = onDismiss) { Text("关闭") } }
     )
 }
