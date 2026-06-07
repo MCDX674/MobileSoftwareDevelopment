@@ -2,7 +2,7 @@
 
 ## 一、实验目的
 
-本实验基于 MVVM（Model-View-ViewModel）架构，结合 Retrofit 网络通信框架、Repository 数据仓库模式以及 Jetpack Compose 声明式 UI 技术，实现一个能够从网络获取并展示图书图片列表的 Bookshelf 应用。
+实验基于 MVVM（Model-View-ViewModel）架构，结合 Retrofit 网络通信框架、Repository 数据仓库模式以及 Jetpack Compose 声明式 UI 技术，实现一个能够从网络获取并展示图书图片列表的 Bookshelf 应用。
 
 通过本实验，掌握以下核心知识点：
 
