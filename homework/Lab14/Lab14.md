@@ -12,7 +12,7 @@ app/src/main/assets/database/bus_schedule.db
 
 本实验的目标是：将现有 `BusSchedule` 数据类转换为 Room Entity，创建 DAO 和 RoomDatabase，并让 ViewModel 从数据库中读取真实数据。
 
-**room_reference** 为 Room 参考文档文件夹，**bus_schedule_reference** 为本实验页面内容的本地整理版。提交代码时无需提交这两个参考文件夹内的任何文件！
+**room_reference** 为 Room 参考文档文件夹，提交代码时无需提交此文件夹内的任何文件！
 
 ---
 
@@ -46,6 +46,17 @@ app/src/main/assets/database/bus_schedule.db
 ### 起始代码
 
 本目录中的 `basic-android-kotlin-compose-training-bus-schedule/` 是 Bus Schedule 的起始项目代码。请在 Android Studio 中打开该目录即可开始实验。
+
+本实验页面原始内容已经合并到本文中。起始代码已经包含：
+
+- Compose UI
+- 顶部应用栏
+- 完整时刻表页面
+- 单个站点时刻页面
+- 页面导航
+- `assets/database/bus_schedule.db` 预置数据库
+
+需要补全的是 Room 数据层。完成后，应用会从数据库中加载真实数据，而不是显示 ViewModel 中的示例数据。
 
 起始代码结构概述：
 
@@ -99,6 +110,10 @@ CREATE TABLE Schedule(
 ```text
 Example Street | 12:00 AM
 ```
+
+起始状态参考：
+
+![起始代码示例数据](img/3603c91854cada9a.png)
 
 原因在于 `BusScheduleViewModel.kt` 中的两个方法仍然使用 `flowOf()` 返回写死数据：
 
@@ -199,6 +214,10 @@ data class BusSchedule(
 ```
 
 注意表名是 `Schedule`，不是 `BusSchedule`。如果表名或列名写错，Room 无法正确读取预置数据库。
+
+最终 Entity 需要匹配数据库中的 `Schedule` 表结构：
+
+![Schedule 表结构](img/9587f9a5f035e552.png)
 
 ---
 
@@ -343,9 +362,9 @@ import com.example.busschedule.data.BusScheduleDatabase
 
 完成后的效果可参考：
 
-![完整时刻表](bus_schedule_reference/img/cdb6f9e79137f323.png)
+![完整时刻表](img/cdb6f9e79137f323.png)
 
-![站点详情](bus_schedule_reference/img/6c59e6f57f59bd27.png)
+![站点详情](img/6c59e6f57f59bd27.png)
 
 截图请使用 Android Studio 或模拟器内置截图功能，**严禁使用手机拍屏幕**。
 
