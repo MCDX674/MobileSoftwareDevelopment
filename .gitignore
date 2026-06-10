@@ -3,6 +3,7 @@
 .AppleDouble
 .LSOverride
 .github
+.claude
 
 # Windows
 Thumbs.db
@@ -16,3 +17,6 @@ __pycache__/
 # IDE
 .vscode/
 .idea/
+drawable/
+font/
+theme/
